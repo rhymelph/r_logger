@@ -25,5 +25,5 @@ RLogger.instance.j('{"msg":"ok"}');
 ```
 print error you can use.
 ```dart
-
+RLogger.instance.e('message', error,stackTrace);
 ```
