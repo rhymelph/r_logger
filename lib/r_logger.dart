@@ -13,7 +13,7 @@ class RLogger {
   final bool isWriteFile;
   static RLogger instance;
 
-  RLogger._(String filePath,String fileName,this.tag, this.isWriteFile){
+  RLogger._(String filePath, String fileName, this.tag, this.isWriteFile) {
     _writer = _RFileWriter(filePath, fileName);
   }
 
@@ -27,9 +27,9 @@ class RLogger {
       {String tag: 'RLogger',
       bool isWriteFile: false,
       String filePath,
-      String fileName}){
-    assert(filePath!=null);
-    return instance = RLogger._(filePath,fileName,tag, isWriteFile);
+      String fileName}) {
+    assert(filePath != null);
+    return instance = RLogger._(filePath, fileName, tag, isWriteFile);
   }
 
   /// log debug
