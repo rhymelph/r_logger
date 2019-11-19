@@ -3,7 +3,10 @@
 A Flutter logger plugin.
 
 ## Usage
-
+```yaml
+dependencies:
+  r_logger: 
+```
 the first use this plugin , your need to init.
 
 ```dart
