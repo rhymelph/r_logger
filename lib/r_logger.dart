@@ -8,21 +8,29 @@ import 'dart:developer' as developer;
 import 'package:intl/intl.dart';
 import 'dart:io';
 
-RLogger logger;
-
 class RLogger {
-  final String filePath;
   final String tag;
   final bool isWriteFile;
+  static RLogger instance;
 
-  RLogger._(this.filePath, this.tag, this.isWriteFile);
+  RLogger._(String filePath,String fileName,this.tag, this.isWriteFile){
+    _writer = _RFileWriter(filePath, fileName);
+  }
+
+  _RFileWriter _writer;
 
   ///[tag] is the name of the source of the log message
   ///[isWriteFile] is the log message write file ?
   ///[filePath] is the log message write file path.
-  factory RLogger.initLogger(
-          {String tag: 'RLogger', bool isWriteFile: false, String filePath}) =>
-      logger = RLogger._(filePath, tag, isWriteFile);
+  ///[fileName] is the log message write file name.
+  static RLogger initLogger(
+      {String tag: 'RLogger',
+      bool isWriteFile: false,
+      String filePath,
+      String fileName}){
+    assert(filePath!=null);
+    return instance = RLogger._(filePath,fileName,tag, isWriteFile);
+  }
 
   /// log debug
   ///
@@ -35,8 +43,7 @@ class RLogger {
       name: tag ?? this.tag,
       time: DateTime.now(),
     );
-    if (isWriteFile == true)
-      _RFileWriter.writeLog(filePath, '\nMessage:$message\n');
+    if (isWriteFile == true) _writer.writeLog('\nMessage:$message\n');
   }
 
   /// log debug
@@ -46,12 +53,12 @@ class RLogger {
   /// [isWriteFile] is the log message write file ?
   void j(String json, {String tag, bool isWriteFile}) {
     developer.log(
-      RJson.jsonFormat(json),
+      _RJson.jsonFormat(json),
       name: tag ?? this.tag,
       time: DateTime.now(),
     );
     if (isWriteFile == true)
-      _RFileWriter.writeLog(filePath, '\nMessage:${RJson.jsonFormat(json)}\n');
+      _writer.writeLog('\nMessage:${_RJson.jsonFormat(json)}\n');
   }
 
   /// log error
@@ -71,7 +78,7 @@ class RLogger {
     );
 
     if (isWriteFile == true)
-      _RFileWriter.writeLog(filePath,
+      _writer.writeLog(
           '\nMessage:$message\nError:$error\n,StackTrace:${stackTrace.toString()}\n');
   }
 }
@@ -79,7 +86,13 @@ class RLogger {
 /// log message file writer
 class _RFileWriter {
   /// write file
-  static File file;
+  File file;
+
+  _RFileWriter(String filePath, String fileName) {
+    Directory rootPath = Directory(filePath);
+    file = File(
+        '${rootPath.path}${fileName ?? '${DateFormat('yyyy_MM_dd').format(DateTime.now())}.log'}');
+  }
 
   /// file log write.
   ///
@@ -87,13 +100,7 @@ class _RFileWriter {
   ///
   /// [path] is the file path to write log message.
   /// [message] is the log message.
-  static Future<void> writeLog(String path, String message) async {
-    if (file == null) {
-      Directory rootPath = Directory(path);
-      String fileName =
-          '${DateFormat('yyyy_MM_dd').format(DateTime.now())}.log';
-      file = File('${rootPath.path}$fileName');
-    }
+  Future<void> writeLog(String message) async {
     if (!file.existsSync()) {
       await file.create(recursive: true);
     }
@@ -102,7 +109,7 @@ class _RFileWriter {
   }
 }
 
-class RJson {
+class _RJson {
   /// json level ping
   ///
   /// [level] your level
