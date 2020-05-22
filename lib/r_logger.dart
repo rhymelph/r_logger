@@ -43,7 +43,11 @@ class RLogger {
       name: tag ?? this.tag,
       time: DateTime.now(),
     );
-    if (isWriteFile == true) _writer.writeLog('\nMessage:$message\n');
+    if (isWriteFile != null) {
+      if (isWriteFile) _writer.writeLog('\n${tag ?? this.tag}:$message\n');
+    } else {
+      if (this.isWriteFile) _writer.writeLog('\n${tag ?? this.tag}:$message\n');
+    }
   }
 
   /// log debug
@@ -57,8 +61,13 @@ class RLogger {
       name: tag ?? this.tag,
       time: DateTime.now(),
     );
-    if (isWriteFile == true)
-      _writer.writeLog('\nMessage:${_RJson.jsonFormat(json)}\n');
+    if (isWriteFile != null) {
+      if (isWriteFile)
+        _writer.writeLog('\n${tag ?? this.tag}:${_RJson.jsonFormat(json)}\n');
+    } else {
+      if (this.isWriteFile)
+        _writer.writeLog('\n${tag ?? this.tag}:${_RJson.jsonFormat(json)}\n');
+    }
   }
 
   /// log error
@@ -77,9 +86,15 @@ class RLogger {
       stackTrace: stackTrace,
     );
 
-    if (isWriteFile == true)
-      _writer.writeLog(
-          '\nMessage:$message\nError:$error\n,StackTrace:${stackTrace.toString()}\n');
+    if (isWriteFile != null) {
+      if (isWriteFile)
+        _writer.writeLog(
+            '\n${tag ?? this.tag}:$message\n  Error:$error\n  StackTrace:${stackTrace.toString()}\n');
+    } else {
+      if (this.isWriteFile)
+        _writer.writeLog(
+            '\n${tag ?? this.tag}:$message\n  Error:$error\n  StackTrace:${stackTrace.toString()}\n');
+    }
   }
 }
 
