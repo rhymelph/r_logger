@@ -4,17 +4,24 @@
 
 library r_logger;
 
+import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:intl/intl.dart';
 import 'dart:io';
 
+
 class RLogger {
   final String tag;
   final bool isWriteFile;
+  final StreamController<RLoggerData> _dataController =
+      StreamController.broadcast();
+
   static RLogger instance;
 
   RLogger._(String filePath, String fileName, this.tag, this.isWriteFile) {
     _writer = _RFileWriter(filePath, fileName);
+    _dataController.stream.listen(_handlePrintMessage);
+    _dataController.stream.listen(_handleWriteFile);
   }
 
   _RFileWriter _writer;
@@ -38,36 +45,29 @@ class RLogger {
   /// [tag] is the name of the source of the log message
   /// [isWriteFile] is the log message write file ?
   void d(String message, {String tag, bool isWriteFile}) {
-    developer.log(
-      message,
-      name: tag ?? this.tag,
-      time: DateTime.now(),
-    );
-    if (isWriteFile != null) {
-      if (isWriteFile) _writer.writeLog('\n${tag ?? this.tag}:$message\n');
-    } else {
-      if (this.isWriteFile) _writer.writeLog('\n${tag ?? this.tag}:$message\n');
-    }
+    _dataController.add(RLoggerData(
+        tag ?? this.tag, RLoggerLevel.debug, message,
+        dateTime: DateTime.now(), isWriteFile: isWriteFile ?? this.isWriteFile));
   }
 
-  /// log debug
+  void i(String message, {String tag, bool isWriteFile}) {
+    _dataController.add(RLoggerData(tag ?? this.tag, RLoggerLevel.info, message,
+        dateTime: DateTime.now(), isWriteFile: isWriteFile ?? this.isWriteFile));
+  }
+
+  /// log json
   ///
   /// [message] s the log message
   /// [tag] is the name of the source of the log message
   /// [isWriteFile] is the log message write file ?
   void j(String json, {String tag, bool isWriteFile}) {
-    developer.log(
+    _dataController.add(RLoggerData(
+      tag ?? this.tag,
+      RLoggerLevel.debug,
       _RJson.jsonFormat(json),
-      name: tag ?? this.tag,
-      time: DateTime.now(),
-    );
-    if (isWriteFile != null) {
-      if (isWriteFile)
-        _writer.writeLog('\n${tag ?? this.tag}:${_RJson.jsonFormat(json)}\n');
-    } else {
-      if (this.isWriteFile)
-        _writer.writeLog('\n${tag ?? this.tag}:${_RJson.jsonFormat(json)}\n');
-    }
+      dateTime: DateTime.now(),
+      isWriteFile: isWriteFile ?? this.isWriteFile,
+    ));
   }
 
   /// log error
@@ -78,22 +78,61 @@ class RLogger {
   /// [isWriteFile] is the log message write file ?
   void e(String message, Object error, StackTrace stackTrace,
       {String tag, bool isWriteFile}) {
-    developer.log(
-      message,
-      name: tag ?? this.tag,
-      time: DateTime.now(),
-      error: error,
-      stackTrace: stackTrace,
-    );
+    _dataController.add(RLoggerData(
+        tag ?? this.tag, RLoggerLevel.error, message,
+        error: error,
+        stackTrace: stackTrace,
+        dateTime: DateTime.now(),
+        isWriteFile: isWriteFile ?? this.isWriteFile));
+  }
 
-    if (isWriteFile != null) {
-      if (isWriteFile)
+  StreamSubscription<RLoggerData> listen(void onData(RLoggerData event),
+      {Function onError, void onDone(), bool cancelOnError}) {
+    return _dataController.stream.listen(onData,
+        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  }
+
+  void dispose() {
+    _dataController.close();
+  }
+
+  void _handlePrintMessage(RLoggerData event) {
+    switch (event.level) {
+      case RLoggerLevel.debug:
+        developer.log(
+          event.message,
+          name: event.tag,
+          time: event.dateTime,
+        );
+        break;
+      case RLoggerLevel.info:
+        print('(${event.tag}):${event.message}');
+        break;
+      case RLoggerLevel.error:
+        developer.log(
+          event.message,
+          name: event.tag,
+          time: event.dateTime,
+          error: event.error,
+          stackTrace: event.stackTrace,
+        );
+        break;
+    }
+  }
+
+  void _handleWriteFile(RLoggerData event) {
+    if (event.isWriteFile != true) return;
+    switch (event.level) {
+      case RLoggerLevel.debug:
+        _writer.writeLog('\n (${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime)}:${event.message}\n');
+        break;
+      case RLoggerLevel.info:
+        _writer.writeLog('\n(${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime)}:${event.message}\n');
+        break;
+      case RLoggerLevel.error:
         _writer.writeLog(
-            '\n${tag ?? this.tag}:$message\n  Error:$error\n  StackTrace:${stackTrace.toString()}\n');
-    } else {
-      if (this.isWriteFile)
-        _writer.writeLog(
-            '\n${tag ?? this.tag}:$message\n  Error:$error\n  StackTrace:${stackTrace.toString()}\n');
+            '\n(${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime)}:${event.message}\n--->Error:${event.error}\n--->StackTrace:${event.stackTrace.toString()}\n');
+        break;
     }
   }
 }
@@ -168,4 +207,23 @@ class _RJson {
     }
     return jsonForMatStr.toString();
   }
+}
+
+enum RLoggerLevel {
+  debug,
+  info,
+  error,
+}
+
+class RLoggerData {
+  final String tag;
+  final RLoggerLevel level;
+  final String message;
+  final Object error;
+  final StackTrace stackTrace;
+  final DateTime dateTime;
+  final bool isWriteFile;
+
+  RLoggerData(this.tag, this.level, this.message,
+      {this.error, this.stackTrace, this.dateTime, this.isWriteFile});
 }

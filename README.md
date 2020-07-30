@@ -18,9 +18,13 @@ import 'packages:r_logger/r_logger.dart';
 // [fileName] can null. default yyyy_MM_dd.
 RLogger.initLogger(tag:'your tag',isWriteFile:true,filePath:'your file path',fileName:'your file name');
 ```
-print info you can use.
+print debug you can use.
 ```dart
 RLogger.instance.d('Message');
+```
+print info you can use.
+```dart
+RLogger.instance.i('Message');
 ```
 print json you can use.
 ```dart
@@ -29,4 +33,10 @@ RLogger.instance.j('{"msg":"ok"}');
 print error you can use.
 ```dart
 RLogger.instance.e('message', error,stackTrace);
+```
+add listener
+```dart
+RLogger.instance.listen((data){
+// logger data
+});
 ```
