@@ -1,7 +1,7 @@
 import 'package:r_logger/r_logger.dart';
 
 void main() {
-  RLogger.initLogger();
+  RLogger.initLogger(filePath: "");
 
   RLogger.instance.d('Debug Hello World!');
 
@@ -11,8 +11,7 @@ void main() {
 
   RLogger.instance.e('your have a error', 'error object', StackTrace.current);
 
-  RLogger.instance.listen((data){
+  RLogger.instance.listen((data) {
 // logger data
   });
-
 }

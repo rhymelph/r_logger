@@ -9,22 +9,21 @@ import 'dart:developer' as developer;
 import 'package:intl/intl.dart';
 import 'dart:io';
 
-
 class RLogger {
   final String tag;
   final bool isWriteFile;
   final StreamController<RLoggerData> _dataController =
       StreamController.broadcast();
 
-  static RLogger instance;
+  static late RLogger instance;
 
-  RLogger._(String filePath, String fileName, this.tag, this.isWriteFile) {
+  RLogger._(String filePath, String? fileName, this.tag, this.isWriteFile) {
     _writer = _RFileWriter(filePath, fileName);
     _dataController.stream.listen(_handlePrintMessage);
     _dataController.stream.listen(_handleWriteFile);
   }
 
-  _RFileWriter _writer;
+  late _RFileWriter _writer;
 
   ///[tag] is the name of the source of the log message
   ///[isWriteFile] is the log message write file ?
@@ -33,9 +32,8 @@ class RLogger {
   static RLogger initLogger(
       {String tag: 'RLogger',
       bool isWriteFile: false,
-      String filePath,
-      String fileName}) {
-    assert(filePath != null);
+      required String filePath,
+      String? fileName}) {
     return instance = RLogger._(filePath, fileName, tag, isWriteFile);
   }
 
@@ -44,15 +42,17 @@ class RLogger {
   /// [message] s the log message
   /// [tag] is the name of the source of the log message
   /// [isWriteFile] is the log message write file ?
-  void d(String message, {String tag, bool isWriteFile}) {
+  void d(String message, {String? tag, bool? isWriteFile}) {
     _dataController.add(RLoggerData(
         tag ?? this.tag, RLoggerLevel.debug, message,
-        dateTime: DateTime.now(), isWriteFile: isWriteFile ?? this.isWriteFile));
+        dateTime: DateTime.now(),
+        isWriteFile: isWriteFile ?? this.isWriteFile));
   }
 
-  void i(String message, {String tag, bool isWriteFile}) {
+  void i(String message, {String? tag, bool? isWriteFile}) {
     _dataController.add(RLoggerData(tag ?? this.tag, RLoggerLevel.info, message,
-        dateTime: DateTime.now(), isWriteFile: isWriteFile ?? this.isWriteFile));
+        dateTime: DateTime.now(),
+        isWriteFile: isWriteFile ?? this.isWriteFile));
   }
 
   /// log json
@@ -60,7 +60,7 @@ class RLogger {
   /// [message] s the log message
   /// [tag] is the name of the source of the log message
   /// [isWriteFile] is the log message write file ?
-  void j(String json, {String tag, bool isWriteFile}) {
+  void j(String json, {String? tag, bool? isWriteFile}) {
     _dataController.add(RLoggerData(
       tag ?? this.tag,
       RLoggerLevel.debug,
@@ -77,7 +77,7 @@ class RLogger {
   /// [tag] is the name of the source of the log message
   /// [isWriteFile] is the log message write file ?
   void e(String message, Object error, StackTrace stackTrace,
-      {String tag, bool isWriteFile}) {
+      {String? tag, bool? isWriteFile}) {
     _dataController.add(RLoggerData(
         tag ?? this.tag, RLoggerLevel.error, message,
         error: error,
@@ -87,7 +87,7 @@ class RLogger {
   }
 
   StreamSubscription<RLoggerData> listen(void onData(RLoggerData event),
-      {Function onError, void onDone(), bool cancelOnError}) {
+      {Function? onError, void onDone()?, bool? cancelOnError}) {
     return _dataController.stream.listen(onData,
         onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
@@ -124,14 +124,16 @@ class RLogger {
     if (event.isWriteFile != true) return;
     switch (event.level) {
       case RLoggerLevel.debug:
-        _writer.writeLog('\n (${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime)}:${event.message}\n');
+        _writer.writeLog(
+            '\n (${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime!)}:${event.message}\n');
         break;
       case RLoggerLevel.info:
-        _writer.writeLog('\n(${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime)}:${event.message}\n');
+        _writer.writeLog(
+            '\n(${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime!)}:${event.message}\n');
         break;
       case RLoggerLevel.error:
         _writer.writeLog(
-            '\n(${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime)}:${event.message}\n--->Error:${event.error}\n--->StackTrace:${event.stackTrace.toString()}\n');
+            '\n(${event.tag})${DateFormat('yyyy-MM-dd HH:mm:ss').format(event.dateTime!)}:${event.message}\n--->Error:${event.error}\n--->StackTrace:${event.stackTrace.toString()}\n');
         break;
     }
   }
@@ -140,9 +142,9 @@ class RLogger {
 /// log message file writer
 class _RFileWriter {
   /// write file
-  File file;
+  late File file;
 
-  _RFileWriter(String filePath, String fileName) {
+  _RFileWriter(String filePath, String? fileName) {
     Directory rootPath = Directory(filePath);
     file = File(
         '${rootPath.path}${fileName ?? '${DateFormat('yyyy_MM_dd').format(DateTime.now())}.log'}');
@@ -219,10 +221,10 @@ class RLoggerData {
   final String tag;
   final RLoggerLevel level;
   final String message;
-  final Object error;
-  final StackTrace stackTrace;
-  final DateTime dateTime;
-  final bool isWriteFile;
+  final Object? error;
+  final StackTrace? stackTrace;
+  final DateTime? dateTime;
+  final bool? isWriteFile;
 
   RLoggerData(this.tag, this.level, this.message,
       {this.error, this.stackTrace, this.dateTime, this.isWriteFile});
