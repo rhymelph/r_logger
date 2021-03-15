@@ -1,4 +1,4 @@
-## [0.2.2] - null safety.
+## [0.2.3] - null safety.
 
 ## [0.2.0] - add listen and logger info method.
 
