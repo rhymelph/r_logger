@@ -1,3 +1,5 @@
+## [0.2.4] - fix null safety issues.
+
 ## [0.2.3] - null safety.
 
 ## [0.2.0] - add listen and logger info method.

@@ -20,23 +20,23 @@ RLogger.initLogger(tag:'your tag',isWriteFile:true,filePath:'your file path',fil
 ```
 print debug you can use.
 ```dart
-RLogger.instance.d('Message');
+RLogger.instance?.d('Message');
 ```
 print info you can use.
 ```dart
-RLogger.instance.i('Message');
+RLogger.instance?.i('Message');
 ```
 print json you can use.
 ```dart
-RLogger.instance.j('{"msg":"ok"}');
+RLogger.instance?.j('{"msg":"ok"}');
 ```
 print error you can use.
 ```dart
-RLogger.instance.e('message', error,stackTrace);
+RLogger.instance?.e('message', error,stackTrace);
 ```
 add listener
 ```dart
-RLogger.instance.listen((data){
+RLogger.instance?.listen((data){
 // logger data
 });
 ```

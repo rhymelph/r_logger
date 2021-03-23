@@ -15,7 +15,7 @@ class RLogger {
   final StreamController<RLoggerData> _dataController =
       StreamController.broadcast();
 
-  static late RLogger instance;
+  static RLogger? instance;
 
   RLogger._(String filePath, String? fileName, this.tag, this.isWriteFile) {
     _writer = _RFileWriter(filePath, fileName);
