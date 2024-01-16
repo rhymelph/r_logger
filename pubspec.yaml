@@ -1,16 +1,16 @@
 name: r_logger
 description: A Flutter logger plugin, it can write log message in the file and print large message in console.
-version: 0.2.5
+version: 0.3.0
 homepage: https://github.com/rhymelph/r_logger
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
-  flutter: ">=1.17.0"
+  sdk: '>=3.1.0 <4.0.0'
+  flutter: ">=3.10.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.18.1
+  intl: ^0.19.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

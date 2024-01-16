@@ -1,3 +1,5 @@
+## [0.2.5] - adapter new flutter version.
+
 ## [0.2.5] - update intl version.
 
 ## [0.2.4] - fix null safety issues.

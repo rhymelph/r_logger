@@ -30,8 +30,8 @@ class RLogger {
   ///[filePath] is the log message write file path.
   ///[fileName] is the log message write file name.
   static RLogger initLogger(
-      {String tag: 'RLogger',
-      bool isWriteFile: false,
+      {String tag = 'RLogger',
+      bool isWriteFile = false,
       required String filePath,
       String? fileName}) {
     return instance = RLogger._(filePath, fileName, tag, isWriteFile);
